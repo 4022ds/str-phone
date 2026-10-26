@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ko"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxNjgwOTQ5NTk4NDQ2NTU3Nzc1NSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzg2MjI4ZjQ4MDE1ZmU5ZmVfaW5kZXguaHRtbC01MDcifSwiZXhwIjoxNzkzMDIwNjM2LCJpYXQiOjE3OTMwMTcwMzYsImFsZyI6IlJTMjU2In0.FAuJe4MMaJ1_6kdTATd-2jqgDh911RjO_jC4FDnuphkndE5Q8HR1MFaoeuBnH86J3Le11tuQ_WFh8RAi-JE5J3M-JdlrG28RzgHFKm72EQe5uM1jC3qQZQ21LnKTTMiKcOugXZ1QMMcGQMXQKepNFOUREalT4qWiarOmr3d5veHzgFHjxvv_RVhjcsAKbsVSYpvJz9AvnWUcCk9liAzyaVmycOh4Ciccfe3Va_mRY_UcQ87VCCLB3cZttlR97W_qo0oxtOt8cWUHaT7GtjwNkV0YIJVb_UYKKEvH5x-4ygCsVBc07ldIAf4u3ZXUsNHj-pPmsN9mSqNUE6GcQddohA","c_86228f48015fe9fe_index.html-507")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>누군가의 아이폰 (Story Phone)</title>
+  <style>
+    :root {
+      --pink: #f2a8ca;
+      --pink2: #fff0f6;
+      --ink: #1c1c1e;
+      --muted: #8e8e93;
+      --line: #e5e5ea;
+      --paper: #f2f2f7;
+      --ios-yellow: #e3a008;
+      --ios-blue: #007aff;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #1e1b24, #121016);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; background: none; }
+
+    /* PHONE CONTAINER */
+    .phone {
+      width: min(390px, 100%);
+      height: min(844px, calc(100dvh - 24px));
+      min-height: 640px;
+      background: #000000;
+      border: 9px solid #2d2d2f;
+      border-radius: 50px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 15px rgba(255,255,255,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      height: 100%;
+      background: #ffffff;
+      border-radius: 40px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* DYNAMIC ISLAND / NOTCH AREA */
+    .status {
+      height: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+      background: transparent;
+      z-index: 10;
+      color: #000;
+    }
+    .status.light { color: #fff; }
+
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 16px 20px;
+      scrollbar-width: none;
+      display: flex;
+      flex-direction: column;
+    }
+    .main::-webkit-scrollbar { display: none; }
+
+    /* HOME BAR */
+    .navline {
+      height: 5px;
+      width: 134px;
+      border-radius: 10px;
+      background: #000;
+      margin: 6px auto 6px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .navline.light { background: #fff; }
+
+    /* LOCK SCREEN */
+    .lock {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      border-radius: 40px;
+      background: linear-gradient(180deg, #1c1427 0%, #000000 100%);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 22px 20px;
+      text-align: center;
+      user-select: none;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .lock.unlocked { transform: translateY(-100%); }
+    .lock .date { font-size: 16px; font-weight: 500; color: #ebebf5; margin-top: 10px; }
+    .lock .time { font-size: 82px; line-height: 1; font-weight: 200; margin-top: 5px; letter-spacing: -2px; }
+    .lock .lockphoto {
+      width: 100%;
+      height: 180px;
+      border-radius: 20px;
+      margin: 30px 0;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .lock .hint-text { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: auto; animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    /* HOME SCREEN */
+    .homewall { background: linear-gradient(160deg, #e4eaf7, #f7e8f0, #eef0f5); flex: 1; display: flex; flex-direction: column; }
+    .homehead { padding: 16px 8px 10px; }
+    .homehead h1 { font-size: 26px; margin: 0; font-weight: 800; color: #1c1c1e; }
+    .homehead p { font-size: 13px; color: #666; margin: 4px 0 0; }
+
+    .appgrid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px 12px;
+      padding: 10px 4px;
+    }
+    .app { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #1c1c1e; font-size: 11px; font-weight: 500; }
+    .appicon {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      transition: transform 0.1s;
+    }
+    .appicon:active { transform: scale(0.92); }
+
+    .i-photos { background: linear-gradient(135deg, #ffffff, #f0f0f0); color: #ff3b30; }
+    .i-notes { background: #fef3c7; color: #d97706; }
+    .i-chat { background: #ffe812; color: #3c1e1e; }
+    .i-sns { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #fff; }
+    .i-black { background: #1c1c1e; color: #fff; }
+
+    .dock {
+      margin-top: auto;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(20px);
+      border-radius: 30px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    /* COMMON PAGE HEADER */
+    .pagehead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      margin-bottom: 8px;
+    }
+    .pagehead-left { display: flex; align-items: center; gap: 8px; }
+    .pagehead h2 { font-size: 22px; font-weight: 700; margin: 0; }
+    .back-btn { font-size: 16px; color: var(--ios-blue); display: flex; align-items: center; gap: 2px; font-weight: 500; }
+
+    /* --- iOS PHOTOS APP --- */
+    .photos-app { background: #fff; min-height: 100%; display: flex; flex-direction: column; margin: -12px -16px -20px; }
+    .photos-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 0.5px solid var(--line); }
+    .photos-header h2 { font-size: 28px; font-weight: 800; margin: 0; }
+    .photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px 0; background: #fff; flex: 1; }
+    .photo-item { aspect-ratio: 1; background: #f0f0f0; background-size: cover; background-position: center; position: relative; cursor: pointer; }
+    .photo-item:active { opacity: 0.8; }
+    
+    .photos-tabbar {
+      display: flex;
+      justify-content: space-around;
+      border-top: 0.5px solid var(--line);
+      padding: 8px 0 16px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .photos-tab { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .photos-tab.active { color: var(--ios-blue); }
+
+    /* --- iOS NOTES APP --- */
+    .notes-app { background: #f2f2f7; min-height: 100%; display: flex; flex-direction: column; margin: -12px -16px -20px; }
+    .notes-list-view { padding: 16px; flex: 1; }
+    .notes-title { font-size: 32px; font-weight: 800; margin: 0 0 12px; color: #000; }
+    .notes-search { background: #e3e3e8; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+    
+    .notes-card-list { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .note-item { padding: 12px 16px; border-bottom: 0.5px solid var(--line); cursor: pointer; }
+    .note-item:last-child { border-bottom: none; }
+    .note-item-title { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .note-item-desc { font-size: 13px; color: var(--muted); display: flex; gap: 8px; }
+    .note-item-date { color: #000; font-weight: 500; }
+
+    /* NOTE EDITOR VIEW */
+    .note-editor-view { background: #fff; flex: 1; display: flex; flex-direction: column; padding: 12px 16px; }
+    .note-editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .note-editor-btn { color: var(--ios-yellow); font-size: 16px; font-weight: 600; }
+    .note-date-center { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 12px; }
+    .note-title-input { font-size: 22px; font-weight: 700; border: none; outline: none; width: 100%; margin-bottom: 10px; }
+    .note-body-textarea { font-size: 15px; line-height: 1.5; border: none; outline: none; width: 100%; flex: 1; resize: none; color: #2c2c2e; }
+
+    /* CHAT & OTHER APPS */
+    .chat-app { display: flex; flex-direction: column; height: 100%; }
+    .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px 0; }
+    .msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; word-break: break-word; }
+    .msg-left { background: #e9e9eb; color: #000; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg-right { background: #ffe812; color: #3c1e1e; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+    /* PHOTO LIGHTBOX MODAL */
+    .lightbox {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 16px 20px;
+    }
+    .lightbox-top { display: flex; justify-content: space-between; color: #fff; font-size: 18px; }
+    .lightbox-img { max-width: 100%; max-height: 70vh; object-fit: contain; margin: auto; }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="screen">
+    <!-- STATUS BAR -->
+    <div class="status" id="statusBar">
+      <span id="clockTime">09:41</span>
+      <span>📶 🛜 🔋</span>
+    </div>
+
+    <!-- LOCK SCREEN OVERLAY -->
+    <div class="lock" id="lockScreen" onclick="unlockPhone()">
+      <div class="date" id="lockDate">10월 26일 월요일</div>
+      <div class="time" id="lockTime">09:41</div>
+      <div class="lockphoto" id="lockPhoto" style="background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&amp;auto=format&amp;fit=crop');"></div>
+      <div class="hint-text">👆 화면을 클릭하여 잠금 해제</div>
+      <div class="navline light"></div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="main" id="appContainer">
+      <!-- HOME SCREEN (DEFAULT) -->
+      <div class="homewall" id="homeScreen">
+        <div class="homehead">
+          <h1>민우의 iPhone</h1>
+          <p>알림 3개 있음</p>
+        </div>
+
+        <div class="appgrid">
+          <div class="app" onclick="openApp('photos')">
+            <div class="appicon i-photos">🖼️</div>
+            <span>사진</span>
+          </div>
+          <div class="app" onclick="openApp('notes')">
+            <div class="appicon i-notes">📝</div>
+            <span>메모</span>
+          </div>
+          <div class="app" onclick="openApp('chat')">
+            <div class="appicon i-chat">💬</div>
+            <span>카카오톡</span>
+          </div>
+          <div class="app" onclick="openApp('sns')">
+            <div class="appicon i-sns">📷</div>
+            <span>인스타그램</span>
+          </div>
+        </div>
+
+        <div class="dock">
+          <div class="app" onclick="alert('전화 앱은 연결할 수 없습니다.')"><div class="appicon i-black">📞</div></div>
+          <div class="app" onclick="openApp('chat')"><div class="appicon i-chat">💬</div></div>
+          <div class="app" onclick="openApp('photos')"><div class="appicon i-photos">🖼️</div></div>
+          <div class="app" onclick="openApp('notes')"><div class="appicon i-notes">📝</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOME INDICATOR BAR -->
+    <div class="navline" onclick="goHome()" id="homeBar"></div>
+  </div>
+</div>
+
+<script>
+  // DEFAULT DATA FOR STORY
+  const state = {
+    photos: [
+      { id: 1, url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop', caption: '지난 여름 바다' },
+      { id: 2, url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&auto=format&fit=crop', caption: '친구들과 함께' },
+      { id: 3, url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500&auto=format&fit=crop', caption: '어두운 골목길...' },
+    ],
+    notes: [
+      { id: 1, title: '버킷리스트', date: '2026. 10. 20.', body: '1. 혼자 여행 가기\n2. 사진전 열기\n3. 그 사람 만나기' },
+      { id: 2, title: '비밀번호 목록', date: '2026. 10. 24.', body: '현관문: 4885#\n노트북: minwoo99!' },
+      { id: 3, title: '10월 25일의 기록 (읽지마)', date: '2026. 10. 25.', body: '그날 밤 본 것을 아무에게도 말해서는 안 된다. 그가 나를 찾고 있다...' }
+    ],
+    chat: [
+      { sender: 'left', text: '야 민우야 너 어제 어디 갔었냐?' },
+      { sender: 'left', text: '전화도 안 받고 무슨 일 있어?' },
+      { sender: 'right', text: '미안, 나 어제 좀 일이 있었어.' },
+      { sender: 'left', text: '너 혹시 그 문서 찾은 거야...?' }
+    ]
+  };
+
+  // UI ELEMENTS
+  const lockScreen = document.getElementById('lockScreen');
+  const appContainer = document.getElementById('appContainer');
+
+  function unlockPhone() {
+    lockScreen.classList.add('unlocked');
+  }
+
+  function goHome() {
+    renderHome();
+  }
+
+  function renderHome() {
+    appContainer.innerHTML = `
+      <div class="homewall">
+        <div class="homehead">
+          <h1>민우의 iPhone</h1>
+          <p>알림 3개 있음</p>
+        </div>
+        <div class="appgrid">
+          <div class="app" onclick="openApp('photos')"><div class="appicon i-photos">🖼️</div><span>사진</span></div>
+          <div class="app" onclick="openApp('notes')"><div class="appicon i-notes">📝</div><span>메모</span></div>
+          <div class="app" onclick="openApp('chat')"><div class="appicon i-chat">💬</div><span>카카오톡</span></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function openApp(appName) {
+    if (appName === 'photos') renderPhotosApp();
+    if (appName === 'notes') renderNotesApp();
+    if (appName === 'chat') renderChatApp();
+  }
+
+  /* --- PHOTOS APP --- */
+  function renderPhotosApp() {
+    let gridHTML = state.photos.map(p => `
+      <div class="photo-item" style="background-image: url('${p.url}')" onclick="viewPhoto('${p.url}', '${p.caption}')"></div>
+    `).join('');
+
+    appContainer.innerHTML = `
+      <div class="photos-app">
+        <div class="photos-header">
+          <h2>보관함</h2>
+          <button style="color:var(--ios-blue); font-weight:600;" onclick="addPhoto()">+ 추가</button>
+        </div>
+        <div class="photos-grid">
+          ${gridHTML}
+        </div>
+        <div class="photos-tabbar">
+          <div class="photos-tab active"><span>🖼️</span>보관함</div>
+          <div class="photos-tab"><span>🔍</span>검색</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function viewPhoto(url, caption) {
+    const lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    lightbox.innerHTML = `
+      <div class="lightbox-top">
+        <button style="color:#fff;" onclick="this.parentElement.parentElement.remove()">✕ 닫기</button>
+        <span>사진</span>
+        <div></div>
+      </div>
+      <img src="${url}" class="lightbox-img">
+      <div style="color:#fff; text-align:center; padding:10px;">${caption || ''}</div>
+    `;
+    document.querySelector('.screen').appendChild(lightbox);
+  }
+
+  function addPhoto() {
+    const url = prompt("추가할 이미지 URL을 입력하세요:", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop");
+    if(url) {
+      state.photos.push({ id: Date.now(), url: url, caption: '새로 추가된 사진' });
+      renderPhotosApp();
+    }
+  }
+
+  /* --- NOTES APP --- */
+  function renderNotesApp() {
+    let notesHTML = state.notes.map(n => `
+      <div class="note-item" onclick="openNoteEditor(${n.id})">
+        <div class="note-item-title">${n.title}</div>
+        <div class="note-item-desc">
+          <span class="note-item-date">${n.date}</span>
+          <span>${n.body.replace(/\n/g, ' ')}</span>
+        </div>
+      </div>
+    `).join('');
+
+    appContainer.innerHTML = `
+      <div class="notes-app">
+        <div class="notes-list-view">
+          <h1 class="notes-title">메모</h1>
+          <div class="notes-search">🔍 검색</div>
+          <div class="notes-card-list">
+            ${notesHTML}
+          </div>
+        </div>
+        <div style="padding:10px 16px; display:flex; justify-content:flex-end;">
+          <button style="color:var(--ios-yellow); font-size:22px;" onclick="createNewNote()">📝</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function openNoteEditor(id) {
+    const note = state.notes.find(n => n.id === id);
+    appContainer.innerHTML = `
+      <div class="notes-app">
+        <div class="note-editor-view">
+          <div class="note-editor-header">
+            <button class="note-editor-btn" onclick="renderNotesApp()">‹ 메모</button>
+            <button class="note-editor-btn" onclick="saveNote(${note.id})">완료</button>
+          </div>
+          <div class="note-date-center">${note.date}</div>
+          <input type="text" id="noteTitle" class="note-title-input" value="${note.title}">
+          <textarea id="noteBody" class="note-body-textarea">${note.body}</textarea>
+        </div>
+      </div>
+    `;
+  }
+
+  function saveNote(id) {
+    const note = state.notes.find(n => n.id === id);
+    if(note) {
+      note.title = document.getElementById('noteTitle').value;
+      note.body = document.getElementById('noteBody').value;
+    }
+    renderNotesApp();
+  }
+
+  function createNewNote() {
+    const newNote = {
+      id: Date.now(),
+      title: '새로운 메모',
+      date: '방금 전',
+      body: ''
+    };
+    state.notes.unshift(newNote);
+    openNoteEditor(newNote.id);
+  }
+
+  /* --- CHAT APP --- */
+  function renderChatApp() {
+    let chatHTML = state.chat.map(c => `
+      <div class="msg-bubble ${c.sender === 'right' ? 'msg-right' : 'msg-left'}">${c.text}</div>
+    `).join('');
+
+    appContainer.innerHTML = `
+      <div class="chat-app">
+        <div class="pagehead">
+          <div class="pagehead-left">
+            <button class="back-btn" onclick="renderHome()">‹ 대화목록</button>
+          </div>
+          <h2>친구</h2>
+          <div></div>
+        </div>
+        <div class="chat-messages">
+          ${chatHTML}
+        </div>
+      </div>
+    `;
+  }
+
+  // REAL-TIME CLOCK
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+    document.getElementById('clockTime').textContent = timeStr;
+    document.getElementById('lockTime').textContent = timeStr;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
+
+
+</body></html>
